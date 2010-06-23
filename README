@@ -1,0 +1,12 @@
+* Building
+
+Type ant to get some help.
+
+* Usage
+
+Put your token as token.txt in the root directory of your
+SD-Card. Start MoleflapClient, hit Menu and then tap Import. Hitting
+"Open Door!" should then work as advertised.
+
+Mail js at alien8 dot de for questions and comments. Feel free to
+improve this. My Android/Java skills are virtually non-existent.
