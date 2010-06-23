@@ -1,6 +1,9 @@
 package de.c3d2.blitz.moleflap;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -13,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,11 +26,14 @@ import android.view.View.OnClickListener;
 public class MoleflapClient extends Activity implements OnClickListener {
 	static final int DIALOG_NET_FAIL = 0;
 	static final int DIALOG_IMPORTED = 1;
+	static final int DIALOG_NO_TOKEN = 2;
+	
+	static final int TOKEN_LENGTH = 164;
 	
 	private Dialog createAlertDialog(String msg, String btnmsg) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(msg);;
-		builder.setNeutralButton("Yes, Sir!", new DialogInterface.OnClickListener() {
+		builder.setNeutralButton(btnmsg, new DialogInterface.OnClickListener() {
 
 			public void onClick(DialogInterface dialog, int arg1) {
 				dialog.dismiss();
@@ -46,7 +53,9 @@ public class MoleflapClient extends Activity implements OnClickListener {
 		case DIALOG_NET_FAIL:
 			return createAlertDialog("Network error. Check your settings.", "Yes, Sir!");
 		case DIALOG_IMPORTED:
-			return createAlertDialog("Imported token from card.", "Okay");
+			return createAlertDialog("Imported token from card. You can safely remove token.txt now.", "Okay");
+		case DIALOG_NO_TOKEN:
+			return createAlertDialog("No valid token. Put one on your card as token.txt and hit Import.", "I'll do that.");
 		default:
 			return null;
 		}		
@@ -59,18 +68,49 @@ public class MoleflapClient extends Activity implements OnClickListener {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		checkTokenFile();		
+		checkDefaults();
 	}
 
-
-	private void checkTokenFile() {
-		// TODO Auto-generated method stub
+	private void checkDefaults() {
 		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		String token = p.getString("token", null);
-		if (token == null) {
-			// TODO Find token file on card and import token.
+		SharedPreferences.Editor e = p.edit();
 		
-		}
+		if (p.getString("url", null) == null)
+			e.putString("url",  "http://moleflap.hq.c3d2.de/open?");
+		e.commit();
+	}
+	
+	private void checkTokenFile() {
+		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		
+		String state = Environment.getExternalStorageState();
+		if (state.equals(Environment.MEDIA_MOUNTED) ||
+			state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
+			File path = Environment.getExternalStorageDirectory();
+			File tokenfile = new File(path, "token.txt");
+			if (tokenfile.exists() && tokenfile.canRead()) {
+				try {
+					FileReader fr = new FileReader(tokenfile);					
+					BufferedReader in = new BufferedReader(fr);
+			        String str = in.readLine().trim();
+					in.close();
+					fr.close();
+					
+					if (str.length() == TOKEN_LENGTH) {
+						SharedPreferences.Editor e = p.edit();
+						e.putString("token", str);
+						e.commit();
+						showDialog(DIALOG_IMPORTED);
+						return;
+					}
+					// Fall through to dialog.
+				} catch (IOException e) {
+					// Race?
+				}
+			}			
+		} 
+		
+		showDialog(DIALOG_NO_TOKEN);
 	}
 
 
@@ -81,8 +121,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);        
         setContentView(R.layout.main);
         
-        
-        
+                
         
         findViewById(R.id.open_btn).setOnClickListener(this);
     }
@@ -103,6 +142,9 @@ public class MoleflapClient extends Activity implements OnClickListener {
 			Intent intent = new Intent();
 			intent.setClassName("de.c3d2.blitz.moleflap", "de.c3d2.blitz.moleflap.Preferences");			
 			startActivity(intent);
+			return true;
+		case R.id.import_token:
+			checkTokenFile();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);	
@@ -125,10 +167,17 @@ public class MoleflapClient extends Activity implements OnClickListener {
 		
 		SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		String url   = p.getString("url", null);
-		String token = p.getString("token", null);
+		String token = p.getString("token", "");
+	
+		if (token.length() != TOKEN_LENGTH) {
+			showDialog(DIALOG_NO_TOKEN);
+			return;
+		}
 		
 		try {
-			p.edit().putString("token", openDoor(url, token));
+			SharedPreferences.Editor e = p.edit();
+			e.putString("token", openDoor(url, token));
+			e.commit();
 		} catch (IOException e) {
 			showDialog(DIALOG_NET_FAIL);
 		}

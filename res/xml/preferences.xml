@@ -2,10 +2,12 @@
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
 <EditTextPreference android:summary="Enter the URL we use to submit the token."
-					android:defaultValue="http://moleflap.hq.c3d2.de/open?"
 					android:title="URL"
-					android:key="url" />
+					android:key="url"
+					android:persistent="true"					
+					/>
 <EditTextPreference android:summary="Your token. Keep it secret!"
 					android:title="Token"
-					android:key="token" />
+					android:key="token"
+					android:persistent="true" />
 </PreferenceScreen>
