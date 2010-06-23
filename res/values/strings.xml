@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="set_preferences">Preferences</string>
+    <string name="hello">Don\'t forget to set your token.</string>
+    <string name="app_name">MoleflapClient</string>
+</resources>
