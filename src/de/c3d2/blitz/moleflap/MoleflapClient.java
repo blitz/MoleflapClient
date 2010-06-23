@@ -152,15 +152,15 @@ public class MoleflapClient extends Activity implements OnClickListener {
 	}
 
 	private String openDoor(String baseurl, String token) throws IOException {
-        URL url = new URL( baseurl + URLEncoder.encode(token) );
+            URL url = new URL( baseurl + URLEncoder.encode(token) );
         
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-        String str = in.readLine();
-        
-        if (str.length() != 64)
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String str = in.readLine();
+
+            if (str.length() != TOKEN_LENGTH)
         	throw new IOException();
         
-        return str;
+            return str;
 	}
 	
 	private void openDoor() {
