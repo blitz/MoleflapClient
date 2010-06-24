@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
-<Button android:id="@+id/open_btn" android:text="Open Door!" android:layout_height="fill_parent" android:layout_width="fill_parent"></Button>
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/main_layout"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+  <ImageView
+     android:id="@+id/c3d2_logo"
+     android:layout_height="wrap_content"
+     android:layout_width="fill_parent"
+     android:src="@drawable/c3d2_logo" />
+
+  <TextView  
+     android:id="@+id/hello_text"
+     android:layout_width="fill_parent" 
+     android:layout_height="wrap_content"
+     android:layout_below="@+id/c3d2_logo"
+     android:text="@string/hello" />
+
+  <Button
+     android:id="@+id/open_btn"
+     android:layout_alignParentBottom="true"
+     android:text="Open Door!"
+     android:layout_height="wrap_content"
+     android:layout_width="fill_parent" />
+
+</RelativeLayout>
