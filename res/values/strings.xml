@@ -2,7 +2,7 @@
 <resources>
     <string name="set_preferences">Preferences</string>
     <string name="hello">This is your friendly <a href="https://wiki.c3d2.de/HQ_Zugangssystem">door opener</a>.\n\n
-      Blame blitz (js@alien8.de) for bugs.
+      Blame bl!tz (js@alien8.de) for bugs.
       
     </string>
     <string name="app_name">MoleflapClient</string>
