@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:title="Settings" android:id="@+id/settings" android:icon="@android:drawable/ic_menu_preferences"></item>
-<item android:title="Quit" android:id="@+id/quit" android:icon="@android:drawable/ic_menu_close_clear_cancel"></item>
 
-<item android:id="@+id/import_token" android:title="Import Token" android:icon="@android:drawable/ic_menu_add"></item>
+  <item android:id="@+id/import_token"
+        android:title="Import Token"
+        android:icon="@android:drawable/ic_menu_add"/>
+
+  <item android:id="@+id/export_token"
+        android:title="Export Token"
+        android:icon="@android:drawable/ic_menu_save"/>
+
+  <item android:title="Settings"
+        android:id="@+id/settings"
+        android:icon="@android:drawable/ic_menu_preferences"/>
+
+  <item android:title="Quit"
+        android:id="@+id/quit"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+
 </menu>

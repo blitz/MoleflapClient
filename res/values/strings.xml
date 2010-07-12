@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="set_preferences">Preferences</string>
-    <string name="hello">This is your friendly <a href="https://wiki.c3d2.de/HQ_Zugangssystem">door opener</a>.\n\n
-      Blame bl!tz (js@alien8.de) for bugs.
-      
+    <string name="hello">Open the gates to the HQ. Blame bl!tz
+      (js@alien8.de) for bugs.\n\nRemember that with great power comes
+      great responsibility. The HQ is a project that is run for you by
+      you.\n\nWhat is your contribution?
     </string>
-    <string name="app_name">MoleflapClient</string>
+    <string name="app_name">Moleflap Client</string>
 </resources>

@@ -1,9 +1,11 @@
 package de.c3d2.blitz.moleflap;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -80,14 +82,51 @@ public class MoleflapClient extends Activity implements OnClickListener {
         e.commit();
     }
 
+    private File tokenFile()
+    {
+        return new File(Environment.getExternalStorageDirectory(), "token.txt");
+    }
+
+    private void exportTokenFile() {
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String token = p.getString("token", null);
+
+        if (token == null) {
+            Toast.makeText(getBaseContext(), "You have to import a token, before you can export it.",
+                           Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String state = Environment.getExternalStorageState();
+        
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            try {
+                FileWriter fw = new FileWriter(tokenFile());
+                BufferedWriter out = new BufferedWriter(fw);
+                out.write(token);
+                out.newLine();
+                out.close();
+                fw.close();
+
+                Toast.makeText(getBaseContext(), "Token exported as token.txt.",
+                               Toast.LENGTH_LONG).show();
+                return;
+            } catch (IOException e) {
+                Log.e(TAG, "IO Exception during token export: " + e );
+            }
+        }
+        
+        Toast.makeText(getBaseContext(), "Could not write token file.",
+                       Toast.LENGTH_LONG).show();
+    }
+
     private void checkTokenFile() {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED) ||
             state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
-            File path = Environment.getExternalStorageDirectory();
-            File tokenfile = new File(path, "token.txt");
+            File tokenfile = tokenFile();
             if (tokenfile.exists() && tokenfile.canRead()) {
                 try {
                     FileReader fr = new FileReader(tokenfile);
@@ -135,12 +174,14 @@ public class MoleflapClient extends Activity implements OnClickListener {
             finish();
             return true;
         case R.id.settings:
-            Intent intent = new Intent();
-            intent.setClassName("de.c3d2.blitz.moleflap", "de.c3d2.blitz.moleflap.Preferences");
+            Intent intent = new Intent(this, Preferences.class);
             startActivity(intent);
             return true;
         case R.id.import_token:
             checkTokenFile();
+            return true;
+        case R.id.export_token:
+            exportTokenFile();
             return true;
         default:
             return super.onOptionsItemSelected(item);
