@@ -228,6 +228,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.open_btn:
+        	// TODO Make this start an activity to asynchronously post the HTTP request.
             openDoor();
             break;
         default:
