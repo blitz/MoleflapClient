@@ -1,15 +1,12 @@
 package de.c3d2.blitz.moleflap;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,11 +27,9 @@ import android.widget.Toast;
 public class MoleflapClient extends Activity implements OnClickListener {
     static final int DIALOG_NO_TOKEN = 1;
 
-    static final int TOKEN_LENGTH = 164;
-
     static final String TAG = "Moleflap";
 
-    private Dialog createAlertDialog(String msg, String btnmsg) {
+	private Dialog createAlertDialog(String msg, String btnmsg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(msg);;
         builder.setNeutralButton(btnmsg, new DialogInterface.OnClickListener() {
@@ -122,29 +117,29 @@ public class MoleflapClient extends Activity implements OnClickListener {
 
     private void checkTokenFile() {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                
+        
+      	SharedPreferences.Editor ed = p.edit();
+      	char[] x = new char[Token.TOKEN_LENGTH];
+        Arrays.fill(x, '0');
+        ed.putString("token", new String(x));
+        ed.commit();
+        if (true) return;
+        
         String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED) ||
             state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
             File tokenfile = tokenFile();
             if (tokenfile.exists() && tokenfile.canRead()) {
                 try {
-                    FileReader fr = new FileReader(tokenfile);
-                    BufferedReader in = new BufferedReader(fr);
-                    String str = in.readLine().trim();
-                    in.close();
-                    fr.close();
-
-                    if (str.length() == TOKEN_LENGTH) {
-                        SharedPreferences.Editor e = p.edit();
-                        e.putString("token", str);
-                        e.commit();
-                        Log.i(TAG, "Token imported!");
-                        Toast.makeText(getBaseContext(), "Token successfully imported.",
-                                       Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    // Fall through to dialog.
+                	Token t = Token.fromFile(tokenfile);
+                    
+                	SharedPreferences.Editor e = p.edit();
+                    e.putString("token", t.toString());
+                    e.commit();
+                    Log.i(TAG, "Token imported!");
+                    
+                    Toast.makeText(getBaseContext(), "Token successfully imported.", Toast.LENGTH_LONG).show();
+                    return;                    
                 } catch (IOException e) {
                     Log.e(TAG, "IO Exception during token import: " + e );
                 }
@@ -188,47 +183,54 @@ public class MoleflapClient extends Activity implements OnClickListener {
         }
     }
 
-    private String openDoor(String baseurl, String token) throws IOException {
-        URL url = new URL( baseurl + URLEncoder.encode(token) );
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-        String str = in.readLine();
-
-        if (str.length() != TOKEN_LENGTH) {
-            Log.e(TAG, "Got '" + str + "' from server. Does not seem to be a token.");
-            throw new IOException();
-        }
-
-        return str;
-    }
-
     private void openDoor() {
 
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String url   = p.getString("url", null);
-        String token = p.getString("token", "");
+        final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final URL url;
+		try {
+			url = new URL(p.getString("url", null));
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			Log.e(TAG, "Post URL is malformed: " + p.getString("url", "<empty>"));
+			return;
+		}
 
-        if (token.length() != TOKEN_LENGTH) {
-
+        final Token token;
+        
+        try {
+        	token = new Token(p.getString("token", ""));        	
+        } catch (IllegalArgumentException e) {
             showDialog(DIALOG_NO_TOKEN);
             return;
         }
-
-        try {
-            SharedPreferences.Editor e = p.edit();
-            e.putString("token", openDoor(url, token));
-            e.commit();
-            Toast.makeText(getBaseContext(), "Request sent!", Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Network error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Network error: " + e);
-        }
+        
+        // Asynchronously open the door and update the token.
+        OpenDoorTask t = new OpenDoorTask() {
+        	protected void onPostExecute(AsyncTaskResult<Token> token) {
+        		if (token.error == null) {
+        			SharedPreferences.Editor e = p.edit();
+        			e.putString("token", token.result.toString());
+        			e.commit();
+        			Toast.makeText(getBaseContext(), "Request sent!", Toast.LENGTH_LONG).show();
+        		} else {
+        			Toast.makeText(getBaseContext(), "Network error: " + token.error.getMessage(),
+        					Toast.LENGTH_LONG).show();
+        			Log.e(TAG, "Network error: " + token.error);
+        		}
+        	}
+        	
+        	protected void onCancelled() {
+        		Toast.makeText(getBaseContext(), "Cancelled?", Toast.LENGTH_LONG );
+        	}
+        };
+        
+        t.execute(new OpenDoorRequest(token, url));
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.open_btn:
-            // TODO Make this start an AsyncTask to asynchronously post the HTTP request.
             openDoor();
             break;
         default:
