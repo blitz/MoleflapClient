@@ -19,8 +19,8 @@ import android.util.Log;
 public class OpenDoorTask extends AsyncTask<OpenDoorRequest, Integer, AsyncTaskResult<Token>> {
 	
 	 protected Token openDoor(URL baseurl, Token token) throws IOException {
-		 URL url = new URL( baseurl.toString() + URLEncoder.encode(token.toString()) );
-
+		 URL url = new URL( baseurl.toString() + "?" + URLEncoder.encode(token.toString()) );
+		 
 		 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 		 String str = in.readLine();
 
