@@ -5,15 +5,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -25,8 +29,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class MoleflapClient extends Activity implements OnClickListener {
-    static final int DIALOG_NO_TOKEN = 1;
-
+    static final int DIALOG_NO_TOKEN    = 1;
+    static final int REQUEST_PICK_TOKEN = 2;
+    
     static final String TAG = "Moleflap";
 
 	private Dialog createAlertDialog(String msg, String btnmsg) {
@@ -49,7 +54,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         switch (id) {
         case DIALOG_NO_TOKEN:
-            return createAlertDialog("No valid token. Put one on your card as token.txt and hit Import.", "I'll do that.");
+            return createAlertDialog("No valid token. Use Import to install one.", "I'll do that.");
         default:
             return null;
         }
@@ -69,7 +74,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
         SharedPreferences.Editor e = p.edit();
 
         if (p.getString("url", null) == null) {
-            String url = "http://moleflap.hq.c3d2.de/open?";
+            String url = "http://moleflap.hq.c3d2.de/open";
             Log.i(TAG, "Default URL not set. Setting to: " + url );
             e.putString("url",  url);
         }
@@ -115,41 +120,41 @@ public class MoleflapClient extends Activity implements OnClickListener {
                        Toast.LENGTH_LONG).show();
     }
 
-    private void checkTokenFile() {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        
-      	SharedPreferences.Editor ed = p.edit();
-      	char[] x = new char[Token.TOKEN_LENGTH];
-        Arrays.fill(x, '0');
-        ed.putString("token", new String(x));
-        ed.commit();
-        if (true) return;
-        
-        String state = Environment.getExternalStorageState();
-        if (state.equals(Environment.MEDIA_MOUNTED) ||
-            state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
-            File tokenfile = tokenFile();
-            if (tokenfile.exists() && tokenfile.canRead()) {
-                try {
-                	Token t = Token.fromFile(tokenfile);
-                    
-                	SharedPreferences.Editor e = p.edit();
-                    e.putString("token", t.toString());
-                    e.commit();
-                    Log.i(TAG, "Token imported!");
-                    
-                    Toast.makeText(getBaseContext(), "Token successfully imported.", Toast.LENGTH_LONG).show();
-                    return;                    
-                } catch (IOException e) {
-                    Log.e(TAG, "IO Exception during token import: " + e );
-                }
-            }
-        }
-
-        showDialog(DIALOG_NO_TOKEN);
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
+    {
+    	switch (requestCode) {
+    	case REQUEST_PICK_TOKEN:
+    		if (resultCode == RESULT_OK && intent != null) {
+    			Uri name = intent.getData();
+    			// Java/Android fail ...
+    			try {
+					File f = new File(new URI(name.toString()));
+					Token t = Token.fromFile(f);
+					SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+					SharedPreferences.Editor e = p.edit();
+					e.putString("token", t.toString());
+					e.commit();
+					Toast.makeText(getBaseContext(), "Token successfully imported.", Toast.LENGTH_LONG).show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+    		}
+    		break;
+    	default:
+    		Log.w(TAG, "Unknown activity " + intent.toString());
+    	}
     }
-
-
+    
+    private void checkTokenFile() {
+    	Intent intent = new Intent("org.openintents.action.PICK_FILE");    
+        try {
+        	startActivityForResult(intent, REQUEST_PICK_TOKEN);
+        } catch (ActivityNotFoundException e) {
+        	// No compatible file manager was found.
+            Toast.makeText(this, "No file manager installed.",
+                            Toast.LENGTH_SHORT).show();
+        }    		
+    }
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
