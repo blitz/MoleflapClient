@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.c3d2.blitz.moleflap;
+package de.c3d2.blitz.moleflap2;
 
 import java.io.BufferedReader;
 import java.io.IOException;

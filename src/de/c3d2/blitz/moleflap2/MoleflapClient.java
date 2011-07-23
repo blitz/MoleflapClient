@@ -1,4 +1,4 @@
-package de.c3d2.blitz.moleflap;
+package de.c3d2.blitz.moleflap2;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -6,9 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,11 +19,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.util.Log;
 import android.widget.Toast;
 
 public class MoleflapClient extends Activity implements OnClickListener {

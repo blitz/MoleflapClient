@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="de.c3d2.blitz.moleflap"
-      android:versionCode="3" android:versionName="2.0">
+      android:versionCode="3" android:versionName="2.0" package="de.c3d2.blitz.moleflap2">
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name"
-    			 android:debuggable="true">
+    <application android:label="@string/app_name" android:icon="@drawable/icon" android:debuggable="true">
         <activity android:label="@string/app_name" android:name="MoleflapClient">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    <activity android:label="@string/set_preferences" android:name="Preferences" />
+    <activity android:label="@string/set_preferences" android:name="de.c3d2.blitz.moleflap2.Preferences" />
     </application>
 
     <uses-sdk android:minSdkVersion="8"/>

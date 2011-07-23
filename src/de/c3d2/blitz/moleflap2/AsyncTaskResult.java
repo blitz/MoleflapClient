@@ -1,4 +1,4 @@
-package de.c3d2.blitz.moleflap;
+package de.c3d2.blitz.moleflap2;
 
 class AsyncTaskResult<T> {
 	public final T         result;
