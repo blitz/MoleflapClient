@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
 <EditTextPreference android:summary="Enter the URL we use to submit the token."
 					android:title="URL"
-					android:key="url"
+					android:key="moleflapurl"
 					android:persistent="true"					
 					/>
 <EditTextPreference android:summary="Your token. Keep it secret!"

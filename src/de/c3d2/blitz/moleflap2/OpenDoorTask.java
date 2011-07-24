@@ -19,11 +19,12 @@ import android.util.Log;
 public class OpenDoorTask extends AsyncTask<OpenDoorRequest, Integer, AsyncTaskResult<Token>> {
 	
 	 protected Token openDoor(URL baseurl, Token token) throws IOException {
-		 URL url = new URL( baseurl.toString() + "?" + URLEncoder.encode(token.toString()) );
-		 
+		 URL url = new URL( baseurl.toString() + "open?" + URLEncoder.encode(token.toString()) );
+		 Log.d(MoleflapClient.TAG, "Post token " + token + " to " + url);
 		 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+		 
 		 String str = in.readLine();
-
+		 Log.d(MoleflapClient.TAG, "Got back " + str + " (" + str.length() + ")");
 		 try {
 			 Token newToken = new Token(str);
 			 return newToken;

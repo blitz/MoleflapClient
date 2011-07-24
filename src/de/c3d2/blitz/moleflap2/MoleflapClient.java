@@ -71,10 +71,10 @@ public class MoleflapClient extends Activity implements OnClickListener {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor e = p.edit();
 
-        if (p.getString("url", null) == null) {
-            String url = "http://moleflap.hq.c3d2.de/open";
+        if (p.getString("moleflapurl", null) == null) {
+            String url = "http://moleflap.hq.c3d2.de/";
             Log.i(TAG, "Default URL not set. Setting to: " + url );
-            e.putString("url",  url);
+            e.putString("moleflapurl",  url);
         }
 
         e.commit();
@@ -124,15 +124,15 @@ public class MoleflapClient extends Activity implements OnClickListener {
     	case REQUEST_PICK_TOKEN:
     		if (resultCode == RESULT_OK && intent != null) {
     			Uri name = intent.getData();
-    			// Java/Android fail ...
     			try {
+        			// URI vs Uri -> Java/Android fail ...
 					File f = new File(new URI(name.toString()));
 					Token t = Token.fromFile(f);
 					SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 					SharedPreferences.Editor e = p.edit();
 					e.putString("token", t.toString());
 					e.commit();
-					Toast.makeText(getBaseContext(), "Token successfully imported.", Toast.LENGTH_LONG).show();
+					Toast.makeText(this, "Token successfully imported.", Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -151,7 +151,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
         } catch (ActivityNotFoundException e) {
         	// No compatible file manager was found.
             Toast.makeText(this, "No file manager installed.",
-                            Toast.LENGTH_SHORT).show();
+                           Toast.LENGTH_SHORT).show();
         }    		
     }
 
@@ -192,7 +192,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
         final SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final URL url;
 		try {
-			url = new URL(p.getString("url", null));
+			url = new URL(p.getString("moleflapurl", null));
 		} catch (MalformedURLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
