@@ -143,8 +143,9 @@ public class MoleflapClient extends Activity implements OnClickListener {
     	}
     }
     
-    private void checkTokenFile() {
-    	Intent intent = new Intent("org.openintents.action.PICK_FILE");    
+    private void importTokenFile() {
+    	Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    	intent.setType("file/*");
         try {
         	startActivityForResult(intent, REQUEST_PICK_TOKEN);
         } catch (ActivityNotFoundException e) {
@@ -176,7 +177,7 @@ public class MoleflapClient extends Activity implements OnClickListener {
             startActivity(intent);
             return true;
         case R.id.import_token:
-            checkTokenFile();
+            importTokenFile();
             return true;
         case R.id.export_token:
             exportTokenFile();
